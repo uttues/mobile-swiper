@@ -1,29 +1,29 @@
 <template>
     <div class="frame">
         <Swiper>
-            <SwiperItem v-for="(item, index) in imgLists" :key="index" :test-item="item" />
+            <SwiperItem v-for="(item, index) in 8"
+                        :key="index"
+                        :index="index" />
         </Swiper>
     </div>
 </template>
 
 <script>
-import Swiper from './swiper/swiper'
-import SwiperItem from './swiper/swiper-item'
+import Swiper from "./swiper/swiper";
+import SwiperItem from "./swiper/swiper-item";
 export default {
     components: {
         Swiper,
         SwiperItem
     },
-    data () {
-        return {
-            imgLists: [1, 2, 3]
-        }
+    data() {
+        return {};
     },
-  methods: {
-      update () {
-          console.log('hello');
-      }
-  }
+    methods: {
+        update() {
+            console.log("hello");
+        }
+    }
 };
 </script>
 
