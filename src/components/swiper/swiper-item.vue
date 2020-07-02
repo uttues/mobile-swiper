@@ -26,9 +26,11 @@ export default {
       // translate: 移动距离，改变时触发生成新的样式（动态样式）
       // inStage：该元素是否处于边缘状态
       // isAnimating: 决定是否添加动作类animating
+      // animDuration: 一次轮播图片所用的时间，默认500，在父组件那边设置默认值
       translate: 0,
       inStage: false,
       isAnimating: false,
+      animDuration: 0,  
       isTouching: false,
       currentX: 0
     };
@@ -38,11 +40,13 @@ export default {
      * translate的值发生改变就会自动执行，计算样式，返回一个style对象，动态样式
      */
     itemStyle() {
+      const transitionValue = this.isAnimating ? `transform ${this.animDuration/1000}s ease-in-out` : `none`
       const style = {
-        transform: `translateX(${this.translate}px)`
+        transform: `translateX(${this.translate}px)`,
+        transition: transitionValue
       };
       return autoprefixer(style);
-    }
+    },
   },
   methods: {
     processIndex(index, activeIndex, length) {
@@ -110,7 +114,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$parent.$el["offsetWidth"]);
+    this.animDuration = this.$parent.animDuration
   }
 };
 </script>
@@ -121,9 +125,6 @@ export default {
   width: 100%;
   height: 100%;
   background: #4962;
-}
-.animating {
-  transition: transform 0.4s ease-in-out;
 }
 .touching {
   transition: transform 0;

@@ -24,6 +24,10 @@ export default {
       type: Number,
       default: 2000
     },
+    animDuration:{
+      type: Number,
+      default: 500
+    },
     height: {
       type: String,
       default: "300px",
@@ -36,12 +40,16 @@ export default {
       // initialIndex：暂时不接受指定，默认0，后期可以作为prop让外界决定
       // activeIndex：当前处于展示区的swiper-item索引
       // timer：定时器
+      // isTimerSliding: 当定时器引起的滑动正在进行时，拖拽无效
+      
+      // 拖拽事件：
+      // startTouchX: touchStart
+      // currentX: 
       items: [],
       initialIndex: 4, // 测试
       activeIndex: -1,
       timer: null,
       startTouchX: 0,
-      currentX: 0
     };
   },
   watch: {
@@ -110,7 +118,7 @@ export default {
     },
 
     handleTouchMove(event) {
-      var dragDistance = event.touches[0].pageX - this.startTouchX;
+      let dragDistance = event.touches[0].pageX - this.startTouchX;
       console.log(dragDistance);
 
       this.items.forEach((item, index) => {
@@ -146,6 +154,7 @@ export default {
 }
 .swiper-container {
   position: relative;
+  overflow: hidden;
   height: 100%;
 }
 </style>
