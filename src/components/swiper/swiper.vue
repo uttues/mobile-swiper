@@ -1,7 +1,12 @@
 <template>
   <div class="swiper">
-    <div class="swiper-container"
-    :style="{ height: height }">
+    <div
+      class="swiper-container"
+      :style="{ height: height }"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+    >
       <!-- <transition><button class="swiper-arrow swiper-arrow-left"><i></i></button></transition> -->
       <!-- <transition><button class="swiper-arrow swiper-arrow-right"><i></i></button></transition> -->
       <slot></slot>
@@ -17,12 +22,12 @@ export default {
     // interval：自动轮播间隔时长
     interval: {
       type: Number,
-      default: 1000
+      default: 2000
     },
     height: {
-        type: String,
-        default: '300px',
-        required: true
+      type: String,
+      default: "300px",
+      required: true
     }
   },
   data() {
@@ -32,9 +37,11 @@ export default {
       // activeIndex：当前处于展示区的swiper-item索引
       // timer：定时器
       items: [],
-      initialIndex: 0,
+      initialIndex: 4, // 测试
       activeIndex: -1,
-      timer: null
+      timer: null,
+      startTouchX: 0,
+      currentX: 0
     };
   },
   watch: {
@@ -44,12 +51,6 @@ export default {
     activeIndex(val, oldVal) {
       this.resetItemsPosition(oldVal);
     }
-  },
-  mounted() {
-    this.updateItems();
-    this.$nextTick(() => {
-      this.startTimer();
-    });
   },
   methods: {
     playSlide() {
@@ -63,6 +64,12 @@ export default {
       if (this.interval <= 0 || this.timer) return;
       this.timer = setInterval(this.playSlide, this.interval);
     },
+    pauseTimer() {
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
+    },
     updateItems() {
       this.items = this.$children.filter(
         child => child.$options.name === "SwiperItem"
@@ -70,7 +77,7 @@ export default {
     },
     resetItemsPosition(oldIndex) {
       this.items.forEach((item, index) => {
-        item.translateItem(index, this.activeIndex, oldIndex);
+        item.timerTranslateItem(index, this.activeIndex, oldIndex);
       });
     },
     /**
@@ -84,13 +91,50 @@ export default {
         this.resetItemsPosition(oldIndex);
       }
     },
-
     prev() {
       this.setActiveItem(this.activeIndex - 1);
     },
     next() {
       this.setActiveItem(this.activeIndex + 1);
+    },
+
+    handleTouchStart(event) {
+      this.startTouchX = event.touches[0].pageX;
+      console.log("handleTouchStart", this.startTouchX);
+      this.pauseTimer();
+      console.log("start");
+
+      this.items.forEach(item => {
+        item.toucherStart();
+      });
+    },
+
+    handleTouchMove(event) {
+      var dragDistance = event.touches[0].pageX - this.startTouchX;
+      console.log(dragDistance);
+
+      this.items.forEach((item, index) => {
+        item.toucherTranslateItem(index, this.activeIndex, dragDistance);
+      });
+    },
+
+    handleTouchEnd() {
+      this.startTimer();
+
+      this.items.forEach(item => {
+        item.toucherEnd();
+      });
     }
+  },
+
+  mounted() {
+    this.updateItems();
+    this.$nextTick(() => {
+      this.startTimer();
+    });
+  },
+  beforeDestroy() {
+    this.pauseTimer();
   }
 };
 </script>

@@ -1,9 +1,10 @@
 <template>
   <div
     class="swiper-item"
-    :class="{
-        'animating': isAnimating
-    }"
+    :class="{ 
+        'animating': isAnimating,
+        'touching': isTouching
+        }"
     :style="itemStyle"
   >
     {{ index }}
@@ -27,7 +28,9 @@ export default {
       // isAnimating: 决定是否添加动作类animating
       translate: 0,
       inStage: false,
-      isAnimating: false
+      isAnimating: false,
+      isTouching: false,
+      currentX: 0
     };
   },
   computed: {
@@ -71,7 +74,7 @@ export default {
      * 所有元素都会重新计算自己的translate值，生成动态样式
      * (列表中只有两个元素需要移动，旧的activeIndex（左移移走），新的activeIndex（左移移入）？？？)
      */
-    translateItem(index, activeIndex, oldIndex) {
+    timerTranslateItem(index, activeIndex, oldIndex) {
       // 列表中只有两个元素需要移动，旧的activeIndex（左移移走），新的activeIndex（左移移入）？？？
       this.isAnimating = index === activeIndex || index === oldIndex;
       const itemsCount = this.$parent.items.length;
@@ -82,6 +85,28 @@ export default {
       // 更新当前元素active状态（是否为activeIndex），计算当前元素的Translate并修改 => 触发新的style计算，动态样式
       this.translate = this.calcTranslate(index, activeIndex);
       // this.ready = true;
+    },
+    toucherStart() {
+      this.isAnimating = false;
+      this.isTouching = true;
+      this.currentX = this.translate;
+      console.log("this.currentX: " + this.currentX);
+    },
+    toucherTranslateItem(index, activeIndex, dragDistance) {
+      // 列表中只有两个元素需要移动，旧的activeIndex（左移移走），新的activeIndex（左移移入）？？？
+      this.isTouching = Math.abs(index - activeIndex) <= 1;
+      const itemsCount = this.$parent.items.length;
+      if (index !== activeIndex && itemsCount > 2) {
+        // 处理当前索引
+        index = this.processIndex(index, activeIndex, itemsCount);
+      }
+      if (this.isTouching) {
+        this.translate = this.currentX + dragDistance;
+      }
+    },
+    toucherEnd() {
+      this.isAnimating = true;
+      this.isTouching = false;
     }
   },
   mounted() {
@@ -99,5 +124,8 @@ export default {
 }
 .animating {
   transition: transform 0.4s ease-in-out;
+}
+.touching {
+  transition: transform 0;
 }
 </style>
