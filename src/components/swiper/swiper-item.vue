@@ -94,7 +94,7 @@ export default {
 .swiper-item {
   position: absolute;
   width: 100%;
-  height: 100px;
+  height: 100%;
   background: #4962;
 }
 .animating {

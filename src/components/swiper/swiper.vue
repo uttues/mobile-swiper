@@ -1,6 +1,7 @@
 <template>
   <div class="swiper">
-    <div class="swiper-container">
+    <div class="swiper-container"
+    :style="{ height: height }">
       <!-- <transition><button class="swiper-arrow swiper-arrow-left"><i></i></button></transition> -->
       <!-- <transition><button class="swiper-arrow swiper-arrow-right"><i></i></button></transition> -->
       <slot></slot>
@@ -17,6 +18,11 @@ export default {
     interval: {
       type: Number,
       default: 1000
+    },
+    height: {
+        type: String,
+        default: '300px',
+        required: true
     }
   },
   data() {
