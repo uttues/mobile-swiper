@@ -1,6 +1,6 @@
 <template>
   <div class="frame">
-    <Swiper height='150px' :anim-duration="400">
+    <Swiper height='150px' :duration="500" :interval="3000">
       <SwiperItem
         v-for="(item, index) in 8"
         :key="index"
@@ -32,7 +32,7 @@ export default {
 <style scoped>
 .frame {
   border: 1px solid;
-  width: 120px;
+  width: 200px;
   height: 200px;
   margin: 0 auto;
 }

@@ -30,17 +30,22 @@ export default {
       translate: 0,
       inStage: false,
       isAnimating: false,
-      animDuration: 0,  
       isTouching: false,
-      currentX: 0
+      currentX: 0,
     };
   },
   computed: {
+    animDuration(){
+      // 父组件的值可能会发生改变（为什么不用props：因为slot嵌套组件的方式不适用与props的情况）
+      return this.$parent.animDuration
+    },
     /**
      * translate的值发生改变就会自动执行，计算样式，返回一个style对象，动态样式
      */
     itemStyle() {
-      const transitionValue = this.isAnimating ? `transform ${this.animDuration/1000}s ease-in-out` : `none`
+      const transitionValue = this.isAnimating || this.isTouching 
+                            ? `transform ${this.animDuration / 1000}s ease-in-out`
+                            : `none`
       const style = {
         transform: `translateX(${this.translate}px)`,
         transition: transitionValue
@@ -92,29 +97,30 @@ export default {
     },
     toucherStart() {
       this.isAnimating = false;
-      this.isTouching = true;
       this.currentX = this.translate;
-      console.log("this.currentX: " + this.currentX);
     },
     toucherTranslateItem(index, activeIndex, dragDistance) {
-      // 列表中只有两个元素需要移动，旧的activeIndex（左移移走），新的activeIndex（左移移入）？？？
-      this.isTouching = Math.abs(index - activeIndex) <= 1;
+      
       const itemsCount = this.$parent.items.length;
-      if (index !== activeIndex && itemsCount > 2) {
-        // 处理当前索引
-        index = this.processIndex(index, activeIndex, itemsCount);
-      }
+
+      // if (index !== activeIndex && itemsCount > 2) {
+      // 处理当前索引
+      // 如果不执行这一个processIndex，则不会实现循环播放
+      index = this.processIndex(index, activeIndex, itemsCount);
+      
+      // 相邻的 Math.abs(index - activeIndex) <= 1 或者 同为列表边界
+      this.isTouching = Math.abs(index - activeIndex) <= 1
+      // }
       if (this.isTouching) {
         this.translate = this.currentX + dragDistance;
       }
     },
     toucherEnd() {
-      this.isAnimating = true;
+      // this.isAnimating = true;
       this.isTouching = false;
     }
   },
   mounted() {
-    this.animDuration = this.$parent.animDuration
   }
 };
 </script>
