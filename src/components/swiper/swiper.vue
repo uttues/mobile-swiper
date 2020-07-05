@@ -11,7 +11,7 @@
       <button class="swiper-arrow" @click="prev"><i>《=</i></button>
       <button class="swiper-arrow" @click="next"><i>=》</i></button>
     </div>
-    <ul class="swiper-indicators">
+    <ul class="swiper-indicators" v-if="showIndication">
       <li 
         class="swiper-indicator" 
         :class="{'swiper-indicator-active': activeIndex === index}"
@@ -53,6 +53,10 @@ export default {
       type: Number,
       default: 0
     },
+    showIndication: {
+      type: Boolean,
+      default: true
+    }
     
   },
   data() {
