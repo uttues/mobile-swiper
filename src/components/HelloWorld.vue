@@ -1,6 +1,6 @@
 <template>
   <div class="frame">
-    <Swiper height='150px' :slide-duration="500" :interval="2000">
+    <Swiper height='150px' :slide-duration="500" :interval="2000" :initial-index="4">
       <SwiperItem
         v-for="(item, index) in 8"
         :key="index"

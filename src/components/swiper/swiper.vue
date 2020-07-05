@@ -31,6 +31,7 @@ export default {
     // slideDuration: 完整轮播（滑动）一次所花时间
     // height：绝对定位，宽度撑满，高度定制（如果不传入高度会塌陷）
     // dragRatioMinLimit：拖拽超过这个限度就会触发轮播
+    // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
     interval: {
       type: Number,
       default: 3000
@@ -44,16 +45,19 @@ export default {
       default: "300px",
       required: true
     },
-    // 
     dragRatioMinLimit:{
-      type:Number,
-      default:0.25
-    }
+      type: Number,
+      default: 0.25
+    },
+    initialIndex: {
+      type: Number,
+      default: 0
+    },
+    
   },
   data() {
     return {
       // items：swiper-item列表（DOM元素列表，用于：父子组件通信，长度渲染指示器）
-      // initialIndex：暂时不接受指定，默认0，后期可以作为prop让外界决定
       // activeIndex：当前处于展示区的swiper-item索引
       // timer：定时器
 
@@ -66,7 +70,6 @@ export default {
       // startTouchX: touchStart时的横坐标
       // dragDistance: 最近一次拖拽终点到拖拽起点的水平距离 
       items: [],
-      initialIndex: 0, 
       activeIndex: -1,
       timer: null,
       
@@ -74,7 +77,7 @@ export default {
       isAutoSliding: false,
       
       startTouchX: 0,
-      dragDistance: 0
+      dragDistance: 0,
     };
   },
   watch: {
@@ -155,6 +158,7 @@ export default {
       this.items = this.$children.filter(
         child => child.$options.name === "SwiperItem"
       );
+      console.log(this.initialIndex);
       this.setActiveItem(this.initialIndex);
     },
 

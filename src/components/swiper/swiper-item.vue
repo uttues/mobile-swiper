@@ -7,7 +7,6 @@
         }"
     :style="itemStyle"
   >
-    {{ index }}
     <slot></slot>
   </div>
 </template>
