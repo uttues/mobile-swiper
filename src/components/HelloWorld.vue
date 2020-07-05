@@ -1,11 +1,10 @@
 <template>
   <div class="frame">
-    <Swiper height='150px' :duration="500" :interval="3000">
+    <Swiper height='150px' :slide-duration="500" :interval="2000">
       <SwiperItem
         v-for="(item, index) in 8"
         :key="index"
-        :index="index"
-      />
+      >{{index}}</SwiperItem>
     </Swiper>
   </div>
 </template>
