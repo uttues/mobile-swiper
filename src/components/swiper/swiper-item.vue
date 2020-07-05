@@ -16,22 +16,19 @@
 import { autoprefixer } from "../../utils";
 export default {
   name: "SwiperItem",
-  props: {
-    index: {
-      type: Number
-    }
-  },
   data() {
     return {
       // translate: 移动距离，改变时触发生成新的样式（动态样式）
       // inStage：该元素是否处于边缘状态
       // isAnimating: 决定是否添加动作类animating
+      // isAnimating: 决定是否添加动作类touching
       // autoAnimDuration: 一次轮播图片所用的时间，默认500，在父组件那边设置默认值
+      // beforeTouchX：touch事件触发前该元素的translate值
       translate: 0,
       inStage: false,
       isAnimating: false,
       isTouching: false,
-      currentX: 0,
+      beforeTouchX: 0,
     };
   },
   computed: {
@@ -60,30 +57,25 @@ export default {
     },
   },
   methods: {
+    // 返回当前元素处理后的index值，用于计算新的translate值
     processIndex(index, activeIndex) {
       const length = this.itemsCount
-      // 当前是activeIndex是第一张，index是最后一张，返回-1，相差-1，表示二者相邻且index在左侧
       if (activeIndex === 0 && index === length - 1) {
         return -1;
       } else if (activeIndex === length - 1 && index === 0) {
-        // 当前页activeIndex是最后一张，index是第一张，返回length，相差1，表示二者相邻且index在右侧
         return length;
-      //   // 如果，index在activeIndex前一页的前面，并且之间的间隔在一半页数即以上，则返回页数长度+1，这样它们会被置于最右侧
-      // } else if (index < activeIndex - 1 && activeIndex - index >= length / 2) {
-      //   return length + 1;
-      //   // 如果，index在activeIndex后一页的后面，并且之间的间隔在一般页数即以上，则返回-2，这样它们会被置于最左侧
-      // } else if (index > activeIndex + 1 && index - activeIndex >= length / 2) {
-      //   return -2;
       }
       return index;
     },
-    calcTranslate(index, activeIndex) {
+    
+    updateTranslate(index, activeIndex) {
       // offsetWidth = width + 左右padding + 左右boder
       const distance = this.$parent.$el["offsetWidth"];
       return distance * (index - activeIndex);
     },
+
     /**
-     * 需要滑动时，由外层 swiper 调用translateItem，触发元素移动
+     * 需要滑动时，由外层 swiper 调用slideTranslateItem，触发元素移动
      * @param index 当前swiper-item索引
      * @param activeIndex 轮播需要显示在正中间的swiper-item索引
      * @param oldIndex 过去的activeIndex
@@ -99,18 +91,17 @@ export default {
         && ((oldIndex !== this.itemsCount - 1) || (activeIndex !== 0))
         && ((oldIndex !== 0) || (activeIndex !== this.itemsCount - 1)));
       
-      // if (index !== activeIndex && this.itemsCount > 2) {
-        // 处理当前索引
-        index = this.processIndex(index, activeIndex, this.itemsCount);
-      // }
+      // 处理当前索引
+      index = this.processIndex(index, activeIndex, this.itemsCount);
 
       // 计算当前元素的Translate并修改 => 触发新的style计算，动态样式
-      this.translate = this.calcTranslate(index, activeIndex);
+      this.translate = this.updateTranslate(index, activeIndex);
       // this.ready = true;
     },
+    
     toucherStart() {
       this.isAnimating = false;
-      this.currentX = this.translate;
+      this.beforeTouchX = this.translate;
     },
     toucherTranslateItem(index, activeIndex, dragDistance) {
       // if (index !== activeIndex && itemsCount > 2) {
@@ -122,7 +113,7 @@ export default {
       this.isTouching = Math.abs(index - activeIndex) <= 1
       // }
       if (this.isTouching) {
-        this.translate = this.currentX + dragDistance;
+        this.translate = this.beforeTouchX + dragDistance;
       }
     },
     toucherEnd() {
