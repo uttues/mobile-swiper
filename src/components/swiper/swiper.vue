@@ -62,7 +62,7 @@ export default {
         // dragRatioMinLimit：拖拽超过这个限度就会触发轮播
         // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
         // showIndication: 是否显示指示器
-        // showArrowType：可选值：always|none|hover(移动端无mouse事件，不显示)
+        // showArrowType：可选值：always|never|hover(移动端无mouse事件，不显示)
         interval: {
             type: Number,
             default: 3000
@@ -123,7 +123,7 @@ export default {
     computed: {
         arrowsShowStatus() {
             return (
-                this.showArrowType !== "none" &&
+                this.showArrowType !== "never" &&
                 (this.showArrowType === "always" || this.isHover)
             );
         }
