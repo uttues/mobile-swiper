@@ -16,7 +16,7 @@
             >
                 <a
                     class="swiper-arrow swiper-arrow-left"
-                    @click="prev"
+                    @click="throttleHandleArrowBtnClick('left')"
                 >
                     <slot name="swiper-arrow-left-slot">
                         <span class="swiper-arrow-inner">
@@ -26,7 +26,7 @@
                 </a>
                 <a
                     class="swiper-arrow swiper-arrow-right"
-                    @click="next"
+                    @click="throttleHandleArrowBtnClick('right')"
                 >
                     <slot name="swiper-arrow-right-slot">
                         <span class="swiper-arrow-inner">
@@ -45,7 +45,7 @@
                 :class="{'swiper-indicator-active': activeIndex === index}"
                 v-for="(item, index) in items"
                 :key="`swiper-indicator-${index}`"
-                @click="indicatorClick(index)"
+                @click="throttleHandleIndicatorClick(index)"
             >
             </li>
         </ul>
@@ -53,6 +53,8 @@
 </template>
 
 <script>
+import { throttle } from '../../utils'
+
 export default {
     name: "Swiper",
     props: {
@@ -267,22 +269,27 @@ export default {
         },
 
         /**
-         * 按钮滑动：前一个swiper-item
+         * 按钮滑动
+         * @param {string} type 类型值：left、right
          */
-        prev() {
-            this.playSlide(-1, false);
-        },
-        /**
-         * 按钮滑动：下一个swiper-item
-         */
-        next() {
-            this.playSlide(1, false);
+        handleArrowBtnClick(type) {
+          console.log('handleArrowBtnClick');
+          switch (type) {
+            case 'left':
+              this.playSlide(-1, false)
+              break
+            case 'right':
+              this.playSlide(1, false)
+              break
+            default: return
+          } 
         },
 
         /**
          * 指示器切换滑动：点击下标为index的 swiper-item
          */
-        indicatorClick(index) {
+        handleIndicatorClick(index) {
+            console.log('handleIndicatorClick');
             this.playSlide(index - this.activeIndex, false);
         },
 
@@ -362,6 +369,10 @@ export default {
                 item.toucherEnd();
             });
         }
+    },
+    created() {
+      this.throttleHandleIndicatorClick = throttle(this.handleIndicatorClick, 300, false)
+      this.throttleHandleArrowBtnClick = throttle(this.handleArrowBtnClick, 300, false)
     },
     mounted() {
         this.$nextTick(() => {
