@@ -168,14 +168,14 @@ export default {
         /**
          * 维护 autoAnimDuration 状态（拖拽+尾滑完成后恢复原值slideDuration）
          * @param value
-         * @param isReset 是否需要延时重置，拖拽进行touchMove中不需要，但拖拽后引起的滑动需要重置（默认不需要）
+         * @param isReset 是否需要延时重置，拖拽进行touchMove中不需要，但拖拽后引起的滑动需要重置为duration（默认不需要）
          */
         setAutoAnimDuration(value, isReset = false) {
             const oldValue = this.autoAnimDuration;
             this.autoAnimDuration = value;
             if (isReset) {
                 setTimeout(() => {
-                    this.autoAnimDuration = this.duration;
+                    this.autoAnimDuration = this.slideDuration;
                 }, oldValue);
             }
         },
@@ -340,6 +340,7 @@ export default {
             // dragRatio>0 会触发小滑动 => 设置滑动时间，开启滑动（内部自动设置滑动保护、定时器重置操作）
             if (dragRatio === 0) {
                 this.delayRestartTimer(0);
+                this.setAutoAnimDuration(this.slideDuration, false);
             } else if (dragRatio < this.dragRatioMinLimit) {
                 this.setAutoAnimDuration(this.slideDuration * dragRatio, true);
                 this.playSlide(0, false);

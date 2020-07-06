@@ -45,6 +45,8 @@ export default {
          * translate的值发生改变就会自动执行，计算样式，返回一个style对象，动态样式
          */
         itemStyle() {
+            console.log(this.autoAnimDuration);
+
             const transitionValue =
                 this.isAnimating || this.isTouching
                     ? `transform ${this.autoAnimDuration / 1000}s ease-in-out`
