@@ -4,12 +4,19 @@
             height='150px'
             :slide-duration="500"
             :interval="2000"
-            show-arrow-type="always"
+            show-arrow-type="hover"
         >
             <SwiperItem
                 v-for="(item, index) in 8"
                 :key="index"
             >{{index}}</SwiperItem>
+            <!-- 定制箭头方法如下 -->
+            <!-- <template v-slot:swiper-arrow-left-slot>
+                左箭头
+            </template>
+            <template v-slot:swiper-arrow-right-slot>
+                右箭头
+            </template> -->
         </Swiper>
     </div>
 </template>

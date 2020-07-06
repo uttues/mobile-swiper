@@ -11,17 +11,33 @@
         >
             <slot></slot>
             <div
-                class="swiper-arrow-wrapper"
+                class="swiper-arrows-container"
                 v-show="arrowsShowStatus"
             >
-                <button
-                    class="swiper-arrow"
+                <!-- <a
+                    class="swiper-arrow swiper-arrow-left"
                     @click="prev"
-                ><i>《=</i></button>
-                <button
-                    class="swiper-arrow"
+                ><i class="triangle-border"></i></a> -->
+                <a
+                    class="swiper-arrow swiper-arrow-left"
+                    @click="prev"
+                >
+                    <slot name="swiper-arrow-left-slot">
+                        <span class="swiper-arrow-inner">
+                            <i class="triangle-border"></i>
+                        </span>
+                    </slot>
+                </a>
+                <a
+                    class="swiper-arrow swiper-arrow-right"
                     @click="next"
-                ><i>=》</i></button>
+                >
+                    <slot name="swiper-arrow-right-slot">
+                        <span class="swiper-arrow-inner">
+                            <i class="triangle-border"></i>
+                        </span>
+                    </slot>
+                </a>
             </div>
         </div>
         <ul
@@ -348,9 +364,48 @@ export default {
     overflow: hidden;
     height: 100%;
 }
-.swiper-arrow-wrapper {
+.swiper-arrows-container {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0 4%;
 }
+.swiper-arrow {
+    display: inline-block;
+    cursor: pointer;
+}
+/* 默认箭头样式 */
+.swiper-arrow-inner {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: rgb(51, 51, 51, 0.3);
+    font-size: 0;
+}
+.triangle-border {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border: 1px solid rgb(0, 0, 0, 0.4);
+    border-bottom: none;
+    border-right: none;
+}
+.swiper-arrow-left .triangle-border {
+    transform: rotate(-45deg);
+    margin: 0 -2px 0 2px;
+}
+.swiper-arrow-right .triangle-border {
+    transform: rotate(135deg);
+    margin: 0 2px 0 -2px;
+}
+.swiper-arrow-inner:hover .triangle-border {
+    border-color: #eee;
+}
+
 .swiper-indicator {
     display: inline-block;
     width: 10px;
