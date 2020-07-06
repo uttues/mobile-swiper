@@ -56,13 +56,20 @@
 export default {
     name: "Swiper",
     props: {
+        // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
+        // height：绝对定位，宽度撑满，高度定制（如果不传入高度会塌陷）
         // interval：自动轮播间隔时长
         // slideDuration: 完整轮播（滑动）一次所花时间
-        // height：绝对定位，宽度撑满，高度定制（如果不传入高度会塌陷）
         // dragRatioMinLimit：拖拽超过这个限度就会触发轮播
-        // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
         // showIndication: 是否显示指示器
         // showArrowType：可选值：always|never|hover(移动端无mouse事件，不显示)
+        // autoplay: 是否自动播放
+        // loop: 是否循环播放
+        height: {
+            type: String,
+            default: "300px",
+            required: true
+        },
         interval: {
             type: Number,
             default: 3000
@@ -70,11 +77,6 @@ export default {
         slideDuration: {
             type: Number,
             default: 500
-        },
-        height: {
-            type: String,
-            default: "300px",
-            required: true
         },
         dragRatioMinLimit: {
             type: Number,
@@ -91,6 +93,14 @@ export default {
         showArrowType: {
             type: String,
             default: "always"
+        },
+        autoplay: {
+            type: Boolean,
+            default: true
+        },
+        loop: {
+            type: Boolean,
+            default: true
         }
     },
     data() {
@@ -132,6 +142,14 @@ export default {
         activeIndex(val, oldVal) {
             this.resetItemsPosition(oldVal);
             this.$emit("change", val, oldVal);
+            // 如果要设置“是否循环播放”，只需要添加下面这一行if判断
+            if (!this.loop) {
+                if (val === this.items.length - 1) {
+                    this.pauseTimer();
+                } else if (!this.timer) {
+                    this.startTimer();
+                }
+            }
         }
     },
     methods: {
@@ -167,11 +185,15 @@ export default {
          *  ● 适用情况：定时器轮播、按钮切换、指示器切换、拖拽引起的小滑动
          *  ● 注意事项：调用之前需确定自动滑动时间，autoAnimDuration
          * @param offset 正值表示：展示列表后第n张，负值表示：展示列表前第n张
+         * @param isTimerSlide 是否是定时器控制，如果（按钮切换、指示器切换、拖拽引起的小滑动），需要传入false
          */
-        playSlide(offset) {
+        playSlide(offset, isTimerSlide = true) {
             this.setAutoSlideStatus();
             this.setActiveItem(this.activeIndex + offset);
-            this.delayRestartTimer(this.autoAnimDuration);
+            // 如果是定时器轮播的，不需要执行下面这个，否则即使有定时器，也会因为执行playSlide进行不必要的关闭重启
+            if (!isTimerSlide) {
+                this.delayRestartTimer(this.autoAnimDuration);
+            }
         },
 
         /**
@@ -179,7 +201,11 @@ export default {
          */
         startTimer() {
             if (this.interval <= 0 || this.timer) return;
-            this.timer = setInterval(this.playSlide, this.interval, 1);
+            // 如果要设置“是否自动播放”，只需要添加下面这一行if判断
+            if (this.autoplay) {
+                // 可以不用传入第二个参数
+                this.timer = setInterval(this.playSlide, this.interval, 1);
+            }
         },
 
         /**
@@ -207,7 +233,6 @@ export default {
             this.items = this.$children.filter(
                 child => child.$options.name === "SwiperItem"
             );
-            console.log(this.initialIndex);
             this.setActiveItem(this.initialIndex);
         },
 
@@ -216,7 +241,6 @@ export default {
          * （负责定时器、按钮类型的轮播）
          */
         resetItemsPosition(oldIndex) {
-            console.log("resetItemsPosition");
             this.items.forEach((item, index) => {
                 item.slideTranslateItem(index, this.activeIndex, oldIndex);
             });
@@ -246,20 +270,20 @@ export default {
          * 按钮滑动：前一个swiper-item
          */
         prev() {
-            this.playSlide(-1);
+            this.playSlide(-1, false);
         },
         /**
          * 按钮滑动：下一个swiper-item
          */
         next() {
-            this.playSlide(1);
+            this.playSlide(1, false);
         },
 
         /**
          * 指示器切换滑动：点击下标为index的 swiper-item
          */
         indicatorClick(index) {
-            this.playSlide(index - this.activeIndex);
+            this.playSlide(index - this.activeIndex, false);
         },
 
         /**
@@ -318,7 +342,7 @@ export default {
                 this.delayRestartTimer(0);
             } else if (dragRatio < this.dragRatioMinLimit) {
                 this.setAutoAnimDuration(this.slideDuration * dragRatio, true);
-                this.playSlide(0);
+                this.playSlide(0, false);
             } else {
                 // 修改滑动时间、开启滑动playSlide的顺序不能错
                 this.setAutoAnimDuration(
@@ -326,9 +350,9 @@ export default {
                     true
                 );
                 if (this.dragDistance > 0) {
-                    this.playSlide(-1);
+                    this.playSlide(-1, false);
                 } else {
-                    this.playSlide(1);
+                    this.playSlide(1, false);
                 }
             }
 

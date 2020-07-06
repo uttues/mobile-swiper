@@ -6,6 +6,7 @@
             :interval="2000"
             show-arrow-type="hover"
             @change="activeIndexChange"
+            :loop="false"
         >
             <!-- swiper-item 切换时触发change事件，回调参数：新的索引，旧的索引 -->
             <SwiperItem
@@ -35,9 +36,6 @@ export default {
         return {};
     },
     methods: {
-        update() {
-            console.log("hello");
-        },
         activeIndexChange(newVal, oldVal) {
             console.log(`新索引：${newVal} 旧索引：${oldVal}`);
         }
