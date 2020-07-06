@@ -14,10 +14,6 @@
                 class="swiper-arrows-container"
                 v-show="arrowsShowStatus"
             >
-                <!-- <a
-                    class="swiper-arrow swiper-arrow-left"
-                    @click="prev"
-                ><i class="triangle-border"></i></a> -->
                 <a
                     class="swiper-arrow swiper-arrow-left"
                     @click="prev"
@@ -41,7 +37,7 @@
             </div>
         </div>
         <ul
-            class="swiper-indicators"
+            class="swiper-indicator-container"
             v-if="showIndication"
         >
             <li
@@ -405,15 +401,28 @@ export default {
 .swiper-arrow-inner:hover .triangle-border {
     border-color: #eee;
 }
-
+ul,
+li {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.swiper-indicator-container {
+    position: absolute;
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
 .swiper-indicator {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
+    margin: 0 2px;
     border-radius: 50%;
-    background-color: #f00;
+    background-color: #fff;
 }
 .swiper-indicator-active {
-    background-color: #0f0;
+    background-color: #ff1e32;
 }
 </style>
