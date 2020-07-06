@@ -131,6 +131,7 @@ export default {
     watch: {
         activeIndex(val, oldVal) {
             this.resetItemsPosition(oldVal);
+            this.$emit("change", val, oldVal);
         }
     },
     methods: {

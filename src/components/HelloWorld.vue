@@ -5,7 +5,9 @@
             :slide-duration="500"
             :interval="2000"
             show-arrow-type="hover"
+            @change="activeIndexChange"
         >
+            <!-- swiper-item 切换时触发change事件，回调参数：新的索引，旧的索引 -->
             <SwiperItem
                 v-for="(item, index) in 8"
                 :key="index"
@@ -35,6 +37,9 @@ export default {
     methods: {
         update() {
             console.log("hello");
+        },
+        activeIndexChange(newVal, oldVal) {
+            console.log(`新索引：${newVal} 旧索引：${oldVal}`);
         }
     }
 };
