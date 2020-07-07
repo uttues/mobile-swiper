@@ -45,7 +45,7 @@
         :class="{'swiper-indicator-active': activeIndex === index}"
         v-for="(item, index) in items"
         :key="`swiper-indicator-${index}`"
-        @click="throttleHandleIndicatorSwitch(index)"
+        @click="handleIndicatorSwitch(index)"
         @mouseenter="throttleHandleIndicatorSwitch(index)"
       >
       </li>
@@ -63,13 +63,14 @@ import {
 export default {
   name: "Swiper",
   props: {
-    // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
     // height：绝对定位，宽度撑满，高度定制（如果不传入高度会塌陷）
     // interval：自动轮播间隔时长
     // slideDuration: 完整轮播（滑动）一次所花时间
-    // dragRatioMinLimit：拖拽超过这个限度就会触发轮播
+    // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
+    // showArrowType：可选值：always|never|hover(若选hover，移动端无mouse事件，不显示)
     // showIndication: 是否显示指示器
-    // showArrowType：可选值：always|never|hover(移动端无mouse事件，不显示)
+    // handleIndicationType: hover|onlyClick（移动端在hover时不生效，仅点击）
+    // dragRatioMinLimit：拖拽超过这个限度就会触发轮播
     // autoplay: 是否自动播放
     // loop: 是否循环播放
     height: {
@@ -85,21 +86,25 @@ export default {
       type: Number,
       default: 500
     },
-    dragRatioMinLimit: {
-      type: Number,
-      default: 0.25
-    },
     initialIndex: {
       type: Number,
       default: 0
+    },
+    showArrowType: {
+      type: String,
+      default: "always"
     },
     showIndication: {
       type: Boolean,
       default: true
     },
-    showArrowType: {
+    handleIndicationType: {
       type: String,
-      default: "always"
+      default: "clickonly"
+    },
+    dragRatioMinLimit: {
+      type: Number,
+      default: 0.25
     },
     autoplay: {
       type: Boolean,
@@ -369,7 +374,9 @@ export default {
   },
   created() {
     this.throttleHandleIndicatorSwitch = throttle(
-      this.handleIndicatorSwitch,
+      this.handleIndicationType === "hover"
+        ? this.handleIndicatorSwitch
+        : () => {},
       300,
       true
     );
@@ -378,6 +385,7 @@ export default {
       300,
       false
     );
+    console.log();
   },
   mounted() {
     this.$nextTick(() => {

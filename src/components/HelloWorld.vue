@@ -5,6 +5,7 @@
       :slide-duration="500"
       :interval="2000"
       show-arrow-type="always"
+      handle-indication-type="hover"
       @change="activeIndexChange"
       :loop="false"
     >
