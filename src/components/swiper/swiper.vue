@@ -55,6 +55,10 @@
 
 <script>
 import { throttle } from "../../utils";
+import {
+  addResizeListener,
+  removeResizeListener
+} from "../../utils/resize-event";
 
 export default {
   name: "Swiper",
@@ -377,6 +381,7 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
+      addResizeListener(this.$el, this.resetItemsPosition);
       // 让prop初始化data，而autoAnimDuration在后期会因为各种操作而修改
       this.autoAnimDuration = this.slideDuration;
       this.updateItems();
@@ -384,6 +389,7 @@ export default {
     });
   },
   beforeDestroy() {
+    if (this.$el) removeResizeListener(this.$el, this.resetItemsPosition);
     this.pauseTimer();
   }
 };
