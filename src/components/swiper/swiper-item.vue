@@ -145,7 +145,4 @@ export default {
   height: 100%;
   background: #4962;
 }
-.touching {
-  transition: transform 0;
-}
 </style>
