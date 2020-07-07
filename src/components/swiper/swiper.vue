@@ -2,6 +2,7 @@
   <div class="swiper">
     <div
       class="swiper-container"
+      :class="{ 'swiper-container-card': modeType === 'card' }"
       :style="{ height: height }"
       @touchstart="handleTouchStart"
       @touchmove="handleTouchMove"
@@ -38,7 +39,7 @@
     </div>
     <ul
       class="swiper-indicator-container"
-      v-if="showIndication"
+      v-if="modeType!=='card' && showIndication"
     >
       <li
         class="swiper-indicator"
@@ -113,6 +114,10 @@ export default {
     loop: {
       type: Boolean,
       default: true
+    },
+    modeType: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -478,5 +483,11 @@ li {
 }
 .swiper-arrow-inner:hover .triangle-border {
   border-color: #eee;
+}
+
+/* card */
+.swiper-container.swiper-container-card {
+  position: relative;
+  overflow: hidden;
 }
 </style>

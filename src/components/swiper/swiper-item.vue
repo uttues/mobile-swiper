@@ -2,6 +2,7 @@
   <div
     class="swiper-item"
     :class="{
+            'swiper-item-card': modeType === 'card',
 			'animating': isAnimating,
 			'touching': isTouching
 		}"
@@ -24,7 +25,9 @@ export default {
       translate: 0,
       isAnimating: false,
       isTouching: false,
-      beforeTouchX: 0
+      beforeTouchX: 0,
+
+      modeType: ""
     };
   },
   computed: {
@@ -54,6 +57,9 @@ export default {
       };
       return autoprefixer(style);
     }
+  },
+  mounted() {
+    this.modeType = this.$parent.modeType;
   },
   methods: {
     /**
