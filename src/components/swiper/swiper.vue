@@ -13,7 +13,7 @@
     </div>
     <div
       class="swiper-arrows-container"
-      v-show="arrowsShowStatus"
+      v-show="isArrowShow"
     >
       <a
         class="swiper-arrow swiper-arrow-left"
@@ -117,18 +117,21 @@ export default {
   },
   data() {
     return {
-      // items：swiper-item列表（DOM元素列表，用于：父子组件通信，长度渲染指示器）
-      // activeIndex：当前处于展示区的swiper-item索引
+      // items：SwiperItem列表（DOM元素列表，用于：组件通信，渲染指示器）
+      // activeIndex：当前处于舞台（轮播图展示区）的swiper-item索引
       // timer：定时器
 
       // 自动滑动相关：
-      // autoAnimDuration：一次自动滑动所需时间（初始值由父组件传入，默认500）
-      //  ● 只有在拖拽相关时需要修改，其它情况均用默认传入的slideDuration
-      // isAutoSliding: 当触发的自动滑动正在进行时，拖拽无效
+      // autoAnimDuration：一次自动滑动所需时间（初始值由props赋值，默认500）=> 修改这个数值来影响子组件SwiperItem
+      //  ● 只有在拖拽相关时需要修改，其它情况均=默认传入的slideDuration
+      //  ● touchMove时，autoAnimDuration=0
+      //  ● touchEnd时，autoAnimDuration是小滑动所持续的事件，根据拖拽比例计算所得
+      // isAutoSliding: 表明处于自动滑动状态：当触发的自动滑动正在进行时，拖拽无效
 
       // 拖拽事件：
       // startTouchX: touchStart时的横坐标
-      // dragDistance: 最近一次拖拽终点到拖拽起点的水平距离
+      // dragDistance: 最近一次拖拽终点到拖拽起点的水平距离，touchEnd时根据这个值去计算小滑动的距离
+
       items: [],
       activeIndex: -1,
       timer: null,
@@ -143,7 +146,8 @@ export default {
     };
   },
   computed: {
-    arrowsShowStatus() {
+    // v-show: isArrowShow，控制箭头按钮是否显示
+    isArrowShow() {
       return (
         this.showArrowType !== "never" &&
         (this.showArrowType === "always" || this.isHover)
@@ -199,7 +203,7 @@ export default {
      * @param offset 正值表示：展示列表后第n张，负值表示：展示列表前第n张
      * @param isTimerSlide 是否是定时器控制，如果（按钮切换、指示器切换、拖拽引起的小滑动），需要传入false
      */
-    playSlide(offset, isTimerSlide = true) {
+    playSlide(offset, isTimerSlide) {
       this.setAutoSlideStatus();
       this.setActiveItem(this.activeIndex + offset);
       // 如果是定时器轮播的，不需要执行下面这个，否则即使有定时器，也会因为执行playSlide进行不必要的关闭重启
@@ -213,10 +217,10 @@ export default {
      */
     startTimer() {
       if (this.interval <= 0 || this.timer) return;
+
       // 如果要设置“是否自动播放”，只需要添加下面这一行if判断
       if (this.autoplay) {
-        // 可以不用传入第二个参数
-        this.timer = setInterval(this.playSlide, this.interval, 1);
+        this.timer = setInterval(this.playSlide, this.interval, 1, true);
       }
     },
 
@@ -279,11 +283,10 @@ export default {
     },
 
     /**
-     * 按钮滑动
+     * 箭头按钮滑动
      * @param {string} type 类型值：left、right
      */
     handleArrowBtnClick(type) {
-      console.log("handleArrowBtnClick");
       switch (type) {
         case "left":
           this.playSlide(-1, false);
@@ -297,10 +300,9 @@ export default {
     },
 
     /**
-     * 指示器切换滑动：点击下标为index的 swiper-item
+     * 指示器切换滑动：点击下标为index的 指示器
      */
     handleIndicatorSwitch(index) {
-      console.log("handleIndicatorSwitch");
       this.playSlide(index - this.activeIndex, false);
     },
 
@@ -426,7 +428,32 @@ export default {
   display: inline-block;
   cursor: pointer;
 }
-/* 默认箭头样式 */
+ul,
+li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.swiper-indicator-container {
+  position: absolute;
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.swiper-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  border-radius: 50%;
+  background-color: #fff;
+  cursor: pointer;
+}
+.swiper-indicator-active {
+  background-color: #ff1e32;
+}
+
+/* 箭头按钮slot中的默认样式 */
 .swiper-arrow-inner {
   display: inline-block;
   padding: 4px 10px;
@@ -451,29 +478,5 @@ export default {
 }
 .swiper-arrow-inner:hover .triangle-border {
   border-color: #eee;
-}
-ul,
-li {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-.swiper-indicator-container {
-  position: absolute;
-  bottom: 2%;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
-.swiper-indicator {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin: 0 2px;
-  border-radius: 50%;
-  background-color: #fff;
-}
-.swiper-indicator-active {
-  background-color: #ff1e32;
 }
 </style>

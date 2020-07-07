@@ -18,8 +18,8 @@ export default {
   data() {
     return {
       // translate: 移动距离，改变时触发生成新的样式（动态样式）
-      // isAnimating: 决定是否添加动作类animating
-      // isTouching: 决定是否添加动作类touching
+      // isAnimating: 动态样式
+      // isTouching: 动态样式
       // beforeTouchX：touch事件触发前该元素的translate值
       translate: 0,
       isAnimating: false,
