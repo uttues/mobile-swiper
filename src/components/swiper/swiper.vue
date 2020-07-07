@@ -45,7 +45,8 @@
                 :class="{'swiper-indicator-active': activeIndex === index}"
                 v-for="(item, index) in items"
                 :key="`swiper-indicator-${index}`"
-                @click="throttleHandleIndicatorClick(index)"
+                @click="throttleHandleIndicatorSwitch(index)"
+                @mouseenter="throttleHandleIndicatorSwitch(index)"
             >
             </li>
         </ul>
@@ -288,8 +289,8 @@ export default {
         /**
          * 指示器切换滑动：点击下标为index的 swiper-item
          */
-        handleIndicatorClick(index) {
-            console.log('handleIndicatorClick');
+        handleIndicatorSwitch(index) {
+            console.log('handleIndicatorSwitch');
             this.playSlide(index - this.activeIndex, false);
         },
 
@@ -371,7 +372,7 @@ export default {
         }
     },
     created() {
-      this.throttleHandleIndicatorClick = throttle(this.handleIndicatorClick, 300, false)
+      this.throttleHandleIndicatorSwitch = throttle(this.handleIndicatorSwitch, 300, true) 
       this.throttleHandleArrowBtnClick = throttle(this.handleArrowBtnClick, 300, false)
     },
     mounted() {

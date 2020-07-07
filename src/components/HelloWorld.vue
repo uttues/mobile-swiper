@@ -4,7 +4,7 @@
             height='150px'
             :slide-duration="500"
             :interval="2000"
-            show-arrow-type="hover"
+            show-arrow-type="always"
             @change="activeIndexChange"
             :loop="false"
         >
