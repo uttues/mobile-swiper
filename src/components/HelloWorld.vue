@@ -8,7 +8,6 @@
       handle-indication-type="clickonly"
       @change="activeIndexChange"
       :loop="true"
-      mode-type="card"
       :edge-card-scale="0.75"
     >
       <SwiperItem

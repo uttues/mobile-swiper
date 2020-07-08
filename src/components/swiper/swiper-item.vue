@@ -90,7 +90,7 @@ export default {
       const zIndexValue =
         this.scale > (1 - this.edgeCardScale) / 2 + this.edgeCardScale
           ? 102
-          : this.isCenter
+          : this.isCenter || this.onEdge
           ? 101
           : 100;
       const style = {
