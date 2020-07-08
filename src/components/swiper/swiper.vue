@@ -410,7 +410,6 @@ export default {
       300,
       false
     );
-    console.log();
   },
   mounted() {
     this.$nextTick(() => {

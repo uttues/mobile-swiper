@@ -11,14 +11,14 @@
       'is-following': isFollowDrag
 		}"
     :style="itemStyle"
-    @click="handleCardClick"
+    @click="throttleHandleCardClick"
   >
     <slot></slot>
   </div>
 </template>
 
 <script>
-import { autoprefixer } from "../../utils";
+import { autoprefixer, throttle } from "../../utils";
 export default {
   name: "SwiperItem",
   data() {
@@ -108,6 +108,9 @@ export default {
       }
       return autoprefixer(style);
     }
+  },
+  created() {
+    this.throttleHandleCardClick = throttle(this.handleCardClick, 1300, true);
   },
   mounted() {
     this.modeType = this.$parent.modeType;
@@ -273,7 +276,6 @@ export default {
      * 在card模式下点击切换
      */
     handleCardClick() {
-      console.log("handleCardClick");
       const parent = this.$parent;
       const index = parent.items.indexOf(this);
       if (this.modeType === "card" && index !== parent.activeIndex) {
