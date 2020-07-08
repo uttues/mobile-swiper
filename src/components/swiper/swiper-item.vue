@@ -161,13 +161,13 @@ export default {
     },
 
     slideTranslateCardItem(index, activeIndex) {
-      // isAnimating 两种情况
-      //  ● 主角
-      //  ● 处于两主角中间，并且不是 itemscount - 1 => 0
-      this.isAnimating = true;
-
       // 处理当前索引
       index = this.processCardIndex(index, activeIndex);
+
+      // isAnimating 表示有过渡动画的SwiperItem
+      this.isAnimating = this.onStage || Math.abs(index - activeIndex) <= 1;
+
+      // 下边这两行主要是用于产生特定的样式，修改translate后触发生成动态样式
       this.onStage = Math.abs(index - activeIndex) <= 1;
       this.isCenter = index === activeIndex;
       this.translate = this.updateCardTranslate(index, activeIndex);

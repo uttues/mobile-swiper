@@ -426,8 +426,7 @@ export default {
 }
 .swiper-container {
   position: relative;
-  overflow-x: visible;
-  overflow-y: visible;
+  overflow: hidden;
 }
 .swiper-arrows-container {
   position: absolute;
