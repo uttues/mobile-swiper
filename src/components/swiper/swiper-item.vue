@@ -236,6 +236,20 @@ export default {
         this.isTouching = Math.abs(index - activeIndex) <= 1;
       } else {
         this.isTouching = Math.abs(index - activeIndex) <= 2;
+        if (!this.isTouching) {
+          if (activeIndex < 2) {
+            // 公式推导？？ 两截拼一起，activeIndex的位置刚好在 itemsCount+activeIndex 上
+            console.log(
+              activeIndex,
+              this.itemsCount,
+              "activeIndex >= this.itemsCount - 2"
+            );
+            this.isTouching = this.itemsCount + activeIndex - index <= 2;
+          }
+          if (activeIndex >= this.itemsCount - 2) {
+            this.isTouching = index - (activeIndex - this.itemsCount) <= 2;
+          }
+        }
       }
       this.beforeTouchX = this.translate;
     },
