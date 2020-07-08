@@ -210,6 +210,7 @@ export default {
 <style scope>
 .swiper-item {
   position: absolute;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   background: #4962;
