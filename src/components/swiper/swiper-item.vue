@@ -60,22 +60,25 @@ export default {
       return this.$parent.items.length;
     },
     scale() {
-      if (!this.isTouching) {
-        return this.modeType === "card" && !this.isCenter
-          ? this.edgeCardScale
-          : 1;
-      } else {
-        if (this.isCenter) {
-          let val = 1 - (1 - this.edgeCardScale) * this.dragRatio;
-          return val >= this.edgeCardScale ? val : this.edgeCardScale;
+      if (this.modeType === "card") {
+        if (!this.isTouching) {
+          return this.modeType === "card" && !this.isCenter
+            ? this.edgeCardScale
+            : 1;
+        } else {
+          if (this.isCenter) {
+            let val = 1 - (1 - this.edgeCardScale) * this.dragRatio;
+            return val >= this.edgeCardScale ? val : this.edgeCardScale;
+          }
+          if (this.isFollowDrag) {
+            let val =
+              (1 - this.edgeCardScale) * this.dragRatio + this.edgeCardScale;
+            return val < 1 ? val : 1;
+          }
+          return this.edgeCardScale;
         }
-        if (this.isFollowDrag) {
-          let val =
-            (1 - this.edgeCardScale) * this.dragRatio + this.edgeCardScale;
-          return val < 1 ? val : 1;
-        }
-        return this.edgeCardScale;
       }
+      return 1;
     },
     /**
      * translate的值发生改变就会自动执行，计算样式，返回一个style对象，动态样式
@@ -85,19 +88,24 @@ export default {
         this.isAnimating || this.isTouching
           ? `transform ${this.autoAnimDuration / 1000}s ease-in-out `
           : `none`;
-      // 102 是is-center，100是on-edge
-      // 会缩小的这一层的层级关系应该是，比scale=1的小，比其他的大，缩小的这层一定是this.center
-      const zIndexValue =
-        this.scale > (1 - this.edgeCardScale) / 2 + this.edgeCardScale
-          ? 102
-          : this.isCenter || this.onEdge
-          ? 101
-          : 100;
+      // 103 是is-center，100是on-edge
+      // 会缩小的这一层scale小到一定程度，就会被大的覆盖（102），一旦释放，因为是onEdge，所以还是需要比其他的层级高
+
       const style = {
         transform: `translateX(${this.translate}px) scale(${this.scale})`,
-        transition: transitionValue,
-        zIndex: zIndexValue
+        transition: transitionValue
       };
+      if (this.modeType === "card") {
+        const zIndexValue =
+          this.scale > (1 - this.edgeCardScale) / 2 + this.edgeCardScale
+            ? 103
+            : this.isCenter
+            ? 102
+            : this.onEdge
+            ? 101
+            : 100;
+        style["zIndex"] = zIndexValue;
+      }
       return autoprefixer(style);
     }
   },
@@ -294,6 +302,6 @@ export default {
 }
 
 .swiper-item.swiper-item-card.is-center {
-  z-index: 102;
+  z-index: 103;
 }
 </style>
