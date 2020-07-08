@@ -84,10 +84,18 @@ export default {
         this.isAnimating || this.isTouching
           ? `transform ${this.autoAnimDuration / 1000}s ease-in-out `
           : `none`;
-
+      // 102 是is-center，100是on-edge
+      // 会缩小的这一层的层级关系应该是，比scale=1的小，比其他的大，缩小的这层一定是this.center
+      const zIndexValue =
+        this.scale > (1 - this.edgeCardScale) / 2 + this.edgeCardScale
+          ? 102
+          : this.isCenter
+          ? 101
+          : 100;
       const style = {
         transform: `translateX(${this.translate}px) scale(${this.scale})`,
-        transition: transitionValue
+        transition: transitionValue,
+        zIndex: zIndexValue
       };
       return autoprefixer(style);
     }
