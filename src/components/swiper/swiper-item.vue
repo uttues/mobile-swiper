@@ -5,7 +5,7 @@
     :class="{
       'swiper-item-card': modeType === 'card',
       'animating': isAnimating,
-    'touching': isTouching,
+      'touching': isTouching,
       'on-edge': onEdge,
       'is-center': isCenter,
       'is-following': isFollowDrag
@@ -231,9 +231,6 @@ export default {
       this.isFollowDrag =
         (dragDistance > 0 && index === activeIndex - 1) ||
         (dragDistance <= 0 && index === activeIndex + 1);
-      if (this.isFollowDrag) {
-        console.log(index, activeIndex);
-      }
     },
 
     /**
@@ -250,11 +247,6 @@ export default {
         if (!this.isTouching) {
           if (activeIndex < 2) {
             // 公式推导？？ 两截拼一起，activeIndex的位置刚好在 itemsCount+activeIndex 上
-            console.log(
-              activeIndex,
-              this.itemsCount,
-              "activeIndex >= this.itemsCount - 2"
-            );
             this.isTouching = this.itemsCount + activeIndex - index <= 2;
           }
           if (activeIndex >= this.itemsCount - 2) {

@@ -12,31 +12,28 @@
     >
       <slot></slot>
     </div>
-    <div
-      class="swiper-arrows-container"
+    <a
+      class="swiper-arrow swiper-arrow-left"
       v-show="isArrowShow"
+      @click="throttleHandleArrowBtnClick('left')"
     >
-      <a
-        class="swiper-arrow swiper-arrow-left"
-        @click="throttleHandleArrowBtnClick('left')"
-      >
-        <slot name="swiper-arrow-left-slot">
-          <span class="swiper-arrow-inner">
-            <i class="triangle-border"></i>
-          </span>
-        </slot>
-      </a>
-      <a
-        class="swiper-arrow swiper-arrow-right"
-        @click="throttleHandleArrowBtnClick('right')"
-      >
-        <slot name="swiper-arrow-right-slot">
-          <span class="swiper-arrow-inner">
-            <i class="triangle-border"></i>
-          </span>
-        </slot>
-      </a>
-    </div>
+      <slot name="swiper-arrow-left-slot">
+        <span class="swiper-arrow-inner">
+          <i class="triangle-border"></i>
+        </span>
+      </slot>
+    </a>
+    <a
+      class="swiper-arrow swiper-arrow-right"
+      v-show="isArrowShow"
+      @click="throttleHandleArrowBtnClick('right')"
+    >
+      <slot name="swiper-arrow-right-slot">
+        <span class="swiper-arrow-inner">
+          <i class="triangle-border"></i>
+        </span>
+      </slot>
+    </a>
     <ul
       class="swiper-indicator-container"
       v-if="modeType!=='card' && showIndication"
@@ -435,22 +432,20 @@ export default {
   position: relative;
   overflow: hidden;
 }
-.swiper-arrows-container {
+.swiper-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
 
-  display: flex;
-  justify-content: space-between;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 0 4%;
-
-  z-index: 999;
-}
-.swiper-arrow {
   display: inline-block;
   cursor: pointer;
+  z-index: 999;
+}
+.swiper-arrow-left {
+  left: 2%;
+}
+.swiper-arrow-right {
+  right: 2%;
 }
 ul,
 li {
