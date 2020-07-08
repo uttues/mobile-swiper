@@ -5,8 +5,8 @@
     :class="{
       'swiper-item-card': modeType === 'card',
       'animating': isAnimating,
-			'touching': isTouching,
-      'on-stage': onStage,
+    'touching': isTouching,
+      'on-edge': onEdge,
       'is-center': isCenter
 		}"
     :style="itemStyle"
@@ -33,10 +33,11 @@ export default {
 
       // modeType：模式类型，值为card表示卡片式
       // edgeCardScale：两侧卡片scale的比例
-      // onStage：是否位于两侧
+      // onEdge：是否位于两侧
+      // isCenter: 是否位于舞台中心
       modeType: "",
       edgeCardScale: 0,
-      onStage: false,
+      onEdge: false,
       isCenter: false,
 
       // ready：updateItems时会对item进行位置初始化，初始化完毕之后再进行显示
@@ -120,7 +121,7 @@ export default {
 
     updateCardTranslate(index, activeIndex) {
       const parentWidth = this.$parent.$el.offsetWidth;
-      if (this.onStage) {
+      if (this.onEdge || this.isCenter) {
         return (
           (parentWidth *
             ((2 - this.edgeCardScale) * (index - activeIndex) + 1)) /
@@ -166,10 +167,11 @@ export default {
       index = this.processCardIndex(index, activeIndex);
 
       // isAnimating 表示有过渡动画的SwiperItem
-      this.isAnimating = this.onStage || Math.abs(index - activeIndex) <= 1;
+      this.isAnimating =
+        this.onEdge || this.isCenter || Math.abs(index - activeIndex) <= 1;
 
       // 下边这两行主要是用于产生特定的样式，修改translate后触发生成动态样式
-      this.onStage = Math.abs(index - activeIndex) <= 1;
+      this.onEdge = Math.abs(index - activeIndex) === 1;
       this.isCenter = index === activeIndex;
       this.translate = this.updateCardTranslate(index, activeIndex);
 
@@ -193,8 +195,13 @@ export default {
      */
     toucherStart(index, activeIndex) {
       this.isAnimating = false;
-      // 相邻的 Math.abs(index - activeIndex) <= 1 或者 同为列表边界
-      this.isTouching = Math.abs(index - activeIndex) <= 1;
+
+      if (this.modeType !== "card") {
+        // 相邻的 Math.abs(index - activeIndex) <= 1 或者 同为列表边界
+        this.isTouching = Math.abs(index - activeIndex) <= 1;
+      } else {
+        this.isTouching = Math.abs(index - activeIndex) <= 2;
+      }
       this.beforeTouchX = this.translate;
     },
 
@@ -233,7 +240,7 @@ export default {
   border: 10px solid rgb(131, 11, 11);
   width: 50%;
 }
-.swiper-item.swiper-item-card.on-stage {
+.swiper-item.swiper-item-card.on-edge {
   z-index: 100;
 }
 
