@@ -341,8 +341,8 @@ export default {
 
       this.pauseTimer();
 
-      this.items.forEach(item => {
-        item.toucherStart();
+      this.items.forEach((item, index) => {
+        item.toucherStart(index, this.activeIndex);
       });
     },
 
