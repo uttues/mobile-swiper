@@ -2,6 +2,7 @@
   <div class="swiper">
     <div
       class="swiper-container"
+      :class="{ 'swiper-container-card': modeType === 'card' }"
       :style="{ height: height }"
       @touchstart="handleTouchStart"
       @touchmove="handleTouchMove"
@@ -11,34 +12,31 @@
     >
       <slot></slot>
     </div>
-    <div
-      class="swiper-arrows-container"
+    <a
+      class="swiper-arrow swiper-arrow-left"
       v-show="isArrowShow"
+      @click="throttleHandleArrowBtnClick('left')"
     >
-      <a
-        class="swiper-arrow swiper-arrow-left"
-        @click="throttleHandleArrowBtnClick('left')"
-      >
-        <slot name="swiper-arrow-left-slot">
-          <span class="swiper-arrow-inner">
-            <i class="triangle-border"></i>
-          </span>
-        </slot>
-      </a>
-      <a
-        class="swiper-arrow swiper-arrow-right"
-        @click="throttleHandleArrowBtnClick('right')"
-      >
-        <slot name="swiper-arrow-right-slot">
-          <span class="swiper-arrow-inner">
-            <i class="triangle-border"></i>
-          </span>
-        </slot>
-      </a>
-    </div>
+      <slot name="swiper-arrow-left-slot">
+        <span class="swiper-arrow-inner">
+          <i class="triangle-border"></i>
+        </span>
+      </slot>
+    </a>
+    <a
+      class="swiper-arrow swiper-arrow-right"
+      v-show="isArrowShow"
+      @click="throttleHandleArrowBtnClick('right')"
+    >
+      <slot name="swiper-arrow-right-slot">
+        <span class="swiper-arrow-inner">
+          <i class="triangle-border"></i>
+        </span>
+      </slot>
+    </a>
     <ul
       class="swiper-indicator-container"
-      v-if="showIndication"
+      v-if="modeType!=='card' && showIndication"
     >
       <li
         class="swiper-indicator"
@@ -113,6 +111,14 @@ export default {
     loop: {
       type: Boolean,
       default: true
+    },
+    modeType: {
+      type: String,
+      default: ""
+    },
+    edgeCardScale: {
+      type: Number,
+      default: 0.83
     }
   },
   data() {
@@ -152,6 +158,13 @@ export default {
         this.showArrowType !== "never" &&
         (this.showArrowType === "always" || this.isHover)
       );
+    },
+    dragRatio() {
+      if (this.modeType === "card") {
+        return Math.abs(this.dragDistance / (this.$el["offsetWidth"] / 4));
+      } else {
+        return Math.abs(this.dragDistance / this.$el["offsetWidth"]);
+      }
     }
   },
   watch: {
@@ -257,9 +270,15 @@ export default {
      * （负责定时器、按钮类型的轮播）
      */
     resetItemsPosition(oldIndex) {
-      this.items.forEach((item, index) => {
-        item.slideTranslateItem(index, this.activeIndex, oldIndex);
-      });
+      if (this.modeType === "card") {
+        this.items.forEach((item, index) => {
+          item.slideTranslateCardItem(index, this.activeIndex, oldIndex);
+        });
+      } else {
+        this.items.forEach((item, index) => {
+          item.slideTranslateItem(index, this.activeIndex, oldIndex);
+        });
+      }
     },
 
     /**
@@ -349,25 +368,26 @@ export default {
     handleTouchEnd() {
       if (this.isAutoSliding) return;
 
-      const dragRatio = Math.abs(this.dragDistance / this.$el["offsetWidth"]);
-
       // dragRatio>0 会触发小滑动 => 设置滑动时间，开启滑动（内部自动设置滑动保护、定时器重置操作）
-      if (dragRatio === 0) {
+      if (this.dragRatio === 0) {
         this.delayRestartTimer(0);
         this.setAutoAnimDuration(this.slideDuration, false);
-      } else if (dragRatio < this.dragRatioMinLimit) {
-        this.setAutoAnimDuration(this.slideDuration * dragRatio, true);
+      } else if (this.dragRatio < this.dragRatioMinLimit) {
+        this.setAutoAnimDuration(this.slideDuration * this.dragRatio, true);
         this.playSlide(0, false);
       } else {
         // 修改滑动时间、开启滑动playSlide的顺序不能错
-        this.setAutoAnimDuration(this.slideDuration * (1 - dragRatio), true);
+        this.setAutoAnimDuration(
+          this.slideDuration * (1 - this.dragRatio),
+          true
+        );
         if (this.dragDistance > 0) {
           this.playSlide(-1, false);
         } else {
           this.playSlide(1, false);
         }
       }
-
+      this.dragDistance = 0;
       // 子组件修改自己的isTouching状态
       this.items.forEach(item => {
         item.toucherEnd();
@@ -387,7 +407,6 @@ export default {
       300,
       false
     );
-    console.log();
   },
   mounted() {
     this.$nextTick(() => {
@@ -413,20 +432,20 @@ export default {
   position: relative;
   overflow: hidden;
 }
-.swiper-arrows-container {
+.swiper-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
 
-  display: flex;
-  justify-content: space-between;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 0 4%;
-}
-.swiper-arrow {
   display: inline-block;
   cursor: pointer;
+  z-index: 999;
+}
+.swiper-arrow-left {
+  left: 2%;
+}
+.swiper-arrow-right {
+  right: 2%;
 }
 ul,
 li {
@@ -439,6 +458,7 @@ li {
   bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 999;
 }
 .swiper-indicator {
   display: inline-block;
@@ -478,5 +498,10 @@ li {
 }
 .swiper-arrow-inner:hover .triangle-border {
   border-color: #eee;
+}
+
+/* card */
+.swiper-container.swiper-container-card {
+  position: relative;
 }
 </style>
