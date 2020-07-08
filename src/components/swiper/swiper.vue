@@ -67,7 +67,7 @@ export default {
     // initialIndex: 初始状态激活的幻灯片的索引，从 0 开始
     // showArrowType：可选值：always|never|hover(若选hover，移动端无mouse事件，不显示)
     // showIndication: 是否显示指示器
-    // handleIndicationType: hover|onlyClick（移动端在hover时不生效，仅点击）
+    // handleIndicationType: hover|clickonly（移动端在hover时不生效，仅点击）
     // dragRatioMinLimit：拖拽超过这个限度就会触发轮播
     // autoplay: 是否自动播放
     // loop: 是否循环播放
