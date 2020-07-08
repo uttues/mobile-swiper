@@ -7,7 +7,8 @@
       'animating': isAnimating,
     'touching': isTouching,
       'on-edge': onEdge,
-      'is-center': isCenter
+      'is-center': isCenter,
+      'is-following': isFollowDrag
 		}"
     :style="itemStyle"
     @click="handleCardClick"
@@ -211,15 +212,16 @@ export default {
     toucherTranslateItem(index, activeIndex, dragDistance) {
       // 如果不执行这一个processIndex，则不会实现循环播放
       index = this.processIndex(index, activeIndex);
-      console.log(dragDistance);
-
-      this.isFollowDrag =
-        this.dragDistance > 0
-          ? index === activeIndex + 1
-          : index === activeIndex - 1;
 
       if (this.isTouching) {
         this.translate = this.beforeTouchX + dragDistance;
+      }
+
+      this.isFollowDrag =
+        (dragDistance > 0 && index === activeIndex - 1) ||
+        (dragDistance <= 0 && index === activeIndex + 1);
+      if (this.isFollowDrag) {
+        console.log(index, activeIndex);
       }
     },
 
