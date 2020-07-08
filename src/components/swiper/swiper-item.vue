@@ -209,6 +209,7 @@ export default {
      * 在card模式下点击切换
      */
     handleCardClick() {
+      console.log("handleCardClick");
       const parent = this.$parent;
       const index = parent.items.indexOf(this);
       if (this.modeType === "card" && index !== parent.activeIndex) {

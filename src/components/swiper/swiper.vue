@@ -161,6 +161,13 @@ export default {
         this.showArrowType !== "never" &&
         (this.showArrowType === "always" || this.isHover)
       );
+    },
+    dragRatio() {
+      if (this.modeType === "card") {
+        return Math.abs(this.dragDistance / (this.$el["offsetWidth"] / 4));
+      } else {
+        return Math.abs(this.dragDistance / this.$el["offsetWidth"]);
+      }
     }
   },
   watch: {
@@ -364,18 +371,19 @@ export default {
     handleTouchEnd() {
       if (this.isAutoSliding) return;
 
-      const dragRatio = Math.abs(this.dragDistance / this.$el["offsetWidth"]);
-
       // dragRatio>0 会触发小滑动 => 设置滑动时间，开启滑动（内部自动设置滑动保护、定时器重置操作）
-      if (dragRatio === 0) {
+      if (this.dragRatio === 0) {
         this.delayRestartTimer(0);
         this.setAutoAnimDuration(this.slideDuration, false);
-      } else if (dragRatio < this.dragRatioMinLimit) {
-        this.setAutoAnimDuration(this.slideDuration * dragRatio, true);
+      } else if (this.dragRatio < this.dragRatioMinLimit) {
+        this.setAutoAnimDuration(this.slideDuration * this.dragRatio, true);
         this.playSlide(0, false);
       } else {
         // 修改滑动时间、开启滑动playSlide的顺序不能错
-        this.setAutoAnimDuration(this.slideDuration * (1 - dragRatio), true);
+        this.setAutoAnimDuration(
+          this.slideDuration * (1 - this.dragRatio),
+          true
+        );
         if (this.dragDistance > 0) {
           this.playSlide(-1, false);
         } else {
