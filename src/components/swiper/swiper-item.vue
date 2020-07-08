@@ -39,6 +39,7 @@ export default {
       edgeCardScale: 0,
       onEdge: false,
       isCenter: false,
+      isFollowDrag: false,
 
       // ready：updateItems时会对item进行位置初始化，初始化完毕之后再进行显示
       ready: false
@@ -51,24 +52,41 @@ export default {
     autoAnimDuration() {
       return this.$parent.autoAnimDuration;
     },
+    dragRatio() {
+      return this.$parent.dragRatio;
+    },
     itemsCount() {
       return this.$parent.items.length;
     },
-
+    scale() {
+      if (!this.isTouching) {
+        return this.modeType === "card" && !this.isCenter
+          ? this.edgeCardScale
+          : 1;
+      } else {
+        if (this.isCenter) {
+          let val = 1 - (1 - this.edgeCardScale) * this.dragRatio;
+          return val >= this.edgeCardScale ? val : this.edgeCardScale;
+        }
+        if (this.isFollowDrag) {
+          let val =
+            (1 - this.edgeCardScale) * this.dragRatio + this.edgeCardScale;
+          return val < 1 ? val : 1;
+        }
+        return this.edgeCardScale;
+      }
+    },
     /**
      * translate的值发生改变就会自动执行，计算样式，返回一个style对象，动态样式
      */
     itemStyle() {
-      const scale =
-        this.modeType === "card" && !this.isCenter ? this.edgeCardScale : 1;
-
       const transitionValue =
         this.isAnimating || this.isTouching
           ? `transform ${this.autoAnimDuration / 1000}s ease-in-out `
           : `none`;
 
       const style = {
-        transform: `translateX(${this.translate}px) scale(${scale})`,
+        transform: `translateX(${this.translate}px) scale(${this.scale})`,
         transition: transitionValue
       };
       return autoprefixer(style);
@@ -173,6 +191,7 @@ export default {
       // 下边这两行主要是用于产生特定的样式，修改translate后触发生成动态样式
       this.onEdge = Math.abs(index - activeIndex) === 1;
       this.isCenter = index === activeIndex;
+
       this.translate = this.updateCardTranslate(index, activeIndex);
 
       this.ready = true;
@@ -184,6 +203,12 @@ export default {
     toucherTranslateItem(index, activeIndex, dragDistance) {
       // 如果不执行这一个processIndex，则不会实现循环播放
       index = this.processIndex(index, activeIndex);
+      console.log(dragDistance);
+
+      this.isFollowDrag =
+        this.dragDistance > 0
+          ? index === activeIndex + 1
+          : index === activeIndex - 1;
 
       if (this.isTouching) {
         this.translate = this.beforeTouchX + dragDistance;

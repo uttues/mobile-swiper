@@ -390,7 +390,7 @@ export default {
           this.playSlide(1, false);
         }
       }
-
+      this.dragDistance = 0;
       // 子组件修改自己的isTouching状态
       this.items.forEach(item => {
         item.toucherEnd();
