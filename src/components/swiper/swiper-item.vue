@@ -10,6 +10,7 @@
       'is-center': isCenter
 		}"
     :style="itemStyle"
+    @click="handleCardClick"
   >
     <slot></slot>
   </div>
@@ -202,6 +203,17 @@ export default {
      */
     toucherEnd() {
       this.isTouching = false;
+    },
+
+    /**
+     * 在card模式下点击切换
+     */
+    handleCardClick() {
+      const parent = this.$parent;
+      const index = parent.items.indexOf(this);
+      if (this.modeType === "card" && index !== parent.activeIndex) {
+        parent.playSlide(index - parent.activeIndex, false);
+      }
     }
   }
 };
