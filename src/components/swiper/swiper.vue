@@ -118,6 +118,10 @@ export default {
     modeType: {
       type: String,
       default: ""
+    },
+    edgeCardScale: {
+      type: Number,
+      default: 0.83
     }
   },
   data() {
@@ -262,9 +266,15 @@ export default {
      * （负责定时器、按钮类型的轮播）
      */
     resetItemsPosition(oldIndex) {
-      this.items.forEach((item, index) => {
-        item.slideTranslateItem(index, this.activeIndex, oldIndex);
-      });
+      if (this.modeType === "card") {
+        this.items.forEach((item, index) => {
+          item.slideTranslateCardItem(index, this.activeIndex, oldIndex);
+        });
+      } else {
+        this.items.forEach((item, index) => {
+          item.slideTranslateItem(index, this.activeIndex, oldIndex);
+        });
+      }
     },
 
     /**
@@ -416,7 +426,8 @@ export default {
 }
 .swiper-container {
   position: relative;
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: visible;
 }
 .swiper-arrows-container {
   position: absolute;
@@ -428,6 +439,8 @@ export default {
   box-sizing: border-box;
   width: 100%;
   padding: 0 4%;
+
+  z-index: 999;
 }
 .swiper-arrow {
   display: inline-block;
@@ -444,6 +457,7 @@ li {
   bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 999;
 }
 .swiper-indicator {
   display: inline-block;
@@ -488,6 +502,5 @@ li {
 /* card */
 .swiper-container.swiper-container-card {
   position: relative;
-  overflow: hidden;
 }
 </style>

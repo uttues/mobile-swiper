@@ -1,7 +1,7 @@
 <template>
   <div class="swiper-module">
     <Swiper
-      height='150px'
+      height='100px'
       :slide-duration="600"
       :interval="2000"
       show-arrow-type="always"
@@ -9,6 +9,7 @@
       @change="activeIndexChange"
       :loop="true"
       mode-type="card"
+      :edge-card-scale="0.75"
     >
       <SwiperItem
         v-for="(item, index) in 8"

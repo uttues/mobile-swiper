@@ -1,10 +1,13 @@
 <template>
   <div
+    v-if="ready"
     class="swiper-item"
     :class="{
-            'swiper-item-card': modeType === 'card',
-			'animating': isAnimating,
-			'touching': isTouching
+      'swiper-item-card': modeType === 'card',
+      'animating': isAnimating,
+			'touching': isTouching,
+      'on-stage': onStage,
+      'is-center': isCenter
 		}"
     :style="itemStyle"
   >
@@ -27,7 +30,16 @@ export default {
       isTouching: false,
       beforeTouchX: 0,
 
-      modeType: ""
+      // modeType：模式类型，值为card表示卡片式
+      // edgeCardScale：两侧卡片scale的比例
+      // onStage：是否位于两侧
+      modeType: "",
+      edgeCardScale: 0,
+      onStage: false,
+      isCenter: false,
+
+      // ready：updateItems时会对item进行位置初始化，初始化完毕之后再进行显示
+      ready: false
     };
   },
   computed: {
@@ -45,14 +57,16 @@ export default {
      * translate的值发生改变就会自动执行，计算样式，返回一个style对象，动态样式
      */
     itemStyle() {
-      console.log(this.autoAnimDuration);
+      const scale =
+        this.modeType === "card" && !this.isCenter ? this.edgeCardScale : 1;
 
       const transitionValue =
         this.isAnimating || this.isTouching
-          ? `transform ${this.autoAnimDuration / 1000}s ease-in-out`
+          ? `transform ${this.autoAnimDuration / 1000}s ease-in-out `
           : `none`;
+
       const style = {
-        transform: `translateX(${this.translate}px)`,
+        transform: `translateX(${this.translate}px) scale(${scale})`,
         transition: transitionValue
       };
       return autoprefixer(style);
@@ -60,6 +74,7 @@ export default {
   },
   mounted() {
     this.modeType = this.$parent.modeType;
+    this.edgeCardScale = this.$parent.edgeCardScale;
   },
   methods: {
     /**
@@ -75,6 +90,24 @@ export default {
       return index;
     },
 
+    processCardIndex(index, activeIndex) {
+      const length = this.itemsCount;
+      // 当前是activeIndex是第一张，index是最后一张，返回-1，相差-1，表示二者相邻且index在左侧
+      if (activeIndex === 0 && index === length - 1) {
+        return -1;
+      } else if (activeIndex === length - 1 && index === 0) {
+        // 当前页activeIndex是最后一张，index是第一张，返回length，相差1，表示二者相邻且index在右侧
+        return length;
+        // 如果，index在activeIndex前一页的前面，并且之间的间隔在一半页数即以上，则返回页数长度+1，这样它们会被置于最右侧
+      } else if (index < activeIndex - 1 && activeIndex - index >= length / 2) {
+        return length + 1;
+        // 如果，index在activeIndex后一页的后面，并且之间的间隔在一般页数即以上，则返回-2，这样它们会被置于最左侧
+      } else if (index > activeIndex + 1 && index - activeIndex >= length / 2) {
+        return -2;
+      }
+      return index;
+    },
+
     /**
      * 更新当前元素的transition，触发生成动态样式
      */
@@ -82,6 +115,21 @@ export default {
       // offsetWidth = width + 左右padding + 左右boder
       const distance = this.$parent.$el["offsetWidth"];
       return distance * (index - activeIndex);
+    },
+
+    updateCardTranslate(index, activeIndex) {
+      const parentWidth = this.$parent.$el.offsetWidth;
+      if (this.onStage) {
+        return (
+          (parentWidth *
+            ((2 - this.edgeCardScale) * (index - activeIndex) + 1)) /
+          4
+        );
+      } else if (index < activeIndex) {
+        return (-(1 + this.edgeCardScale) * parentWidth) / 4;
+      } else {
+        return ((3 + this.edgeCardScale) * parentWidth) / 4;
+      }
     },
 
     /**
@@ -109,7 +157,22 @@ export default {
 
       // 计算当前元素的Translate并修改 => 触发新的style计算，动态样式
       this.translate = this.updateTranslate(index, activeIndex);
-      // this.ready = true;
+      this.ready = true;
+    },
+
+    slideTranslateCardItem(index, activeIndex) {
+      // isAnimating 两种情况
+      //  ● 主角
+      //  ● 处于两主角中间，并且不是 itemscount - 1 => 0
+      this.isAnimating = true;
+
+      // 处理当前索引
+      index = this.processCardIndex(index, activeIndex);
+      this.onStage = Math.abs(index - activeIndex) <= 1;
+      this.isCenter = index === activeIndex;
+      this.translate = this.updateCardTranslate(index, activeIndex);
+
+      this.ready = true;
     },
 
     /**
@@ -150,5 +213,17 @@ export default {
   width: 100%;
   height: 100%;
   background: #4962;
+}
+.swiper-item.swiper-item-card {
+  background-image: url("../../Snipaste_2020-07-07_21-39-47.png");
+  border: 10px solid rgb(131, 11, 11);
+  width: 50%;
+}
+.swiper-item.swiper-item-card.on-stage {
+  z-index: 100;
+}
+
+.swiper-item.swiper-item-card.is-center {
+  z-index: 102;
 }
 </style>
