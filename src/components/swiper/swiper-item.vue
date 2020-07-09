@@ -189,10 +189,15 @@ export default {
      * (列表中只有两个元素需要移动，旧的activeIndex（左移移走），新的activeIndex（左移移入）？？？)
      */
     slideTranslateItem(index, activeIndex, oldIndex) {
-      // isAnimating 两种情况
+      if (this.autoAnimDuration === this.$parent.slideDuration) {
+        this.isFollowDrag = false;
+      }
+      // isAnimating 三种种情况
       //  ● 主角
       //  ● 处于两主角中间，并且不是 itemscount - 1 => 0
+      //  ● 如果是拖拽，未引起滑动，oldIndex = activeIndex，但是它隔壁is-following元素也需要滑动(需要加上上面的if判断，以免影响其他滑动)
       this.isAnimating =
+        this.isFollowDrag ||
         index === oldIndex ||
         index === activeIndex ||
         (((oldIndex < index && index < activeIndex) ||
@@ -295,7 +300,6 @@ export default {
   background: #4962;
 }
 .swiper-item.swiper-item-card {
-  background-image: url("../../Snipaste_2020-07-07_21-39-47.png");
   border: 10px solid rgb(131, 11, 11);
   width: 50%;
 }

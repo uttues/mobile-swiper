@@ -1,47 +1,26 @@
 <template>
-  <div class="swiper-module">
+  <div class="banner-swiper-container">
     <Swiper
-      height='100px'
-      :slide-duration="600"
-      :interval="2000"
-      show-arrow-type="always"
-      handle-indication-type="clickonly"
-      @change="activeIndexChange"
-      :loop="true"
-      :edge-card-scale="0.75"
-    >
-      <SwiperItem
-        v-for="(item, index) in 8"
-        :key="index"
-      >{{index}}</SwiperItem>
-      <!-- 定制箭头方法如下 -->
-      <!-- 
-        <template v-slot:swiper-arrow-left-slot>左箭头</template>
-        <template v-slot:swiper-arrow-right-slot>右箭头</template>
-      -->
-    </Swiper>
-    <Swiper
-      height='2.58rem'
+      height='129px'
       show-arrow-type="never"
       handle-indication-type="hover"
       :drag-ratio-min-limit="0.33"
+      :slide-duration="500"
+      :interval="3000"
       :loop="true"
       :autoplay="true"
-      style="background: red"
     >
       <SwiperItem
         v-for="(item, index) in banners"
         :key="index"
-      >sss</SwiperItem>
-      <!-- <SwiperItem
-      v-for="(item, index) in banners"
-      :key="`banner-item-${index}`"
-    >
-      <div class="banner-item">
-        {{ index }}
-      </div>
-    </SwiperItem> -->
-
+      >
+        <a class="banners-item">
+          <img
+            :src="item.imageUrl"
+            alt
+          />
+        </a>
+      </SwiperItem>
     </Swiper>
   </div>
 </template>
@@ -75,10 +54,11 @@ export default {
 </script>
 
 <style scoped>
-.swiper-module {
-  border: 1px solid;
-  width: 200px;
-  height: 400px;
-  margin: 0 auto;
+.banner-swiper-container {
+  text-align: center;
+}
+.banner-swiper-container img {
+  width: 343px;
+  border-radius: 5px;
 }
 </style>
