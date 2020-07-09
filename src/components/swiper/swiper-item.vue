@@ -115,6 +115,9 @@ export default {
   mounted() {
     this.modeType = this.$parent.modeType;
     this.edgeCardScale = this.$parent.edgeCardScale;
+    if (this.$parent.$options.name === "Swiper") {
+      this.$parent.updateItems();
+    }
   },
   methods: {
     /**
@@ -158,7 +161,7 @@ export default {
     },
 
     updateCardTranslate(index, activeIndex) {
-      const parentWidth = this.$parent.$el.offsetWidth;
+      const parentWidth = this.$parent.$el["offsetWidth"];
       if (this.onEdge || this.isCenter) {
         return (
           (parentWidth *
