@@ -115,7 +115,12 @@ export default {
   mounted() {
     this.modeType = this.$parent.modeType;
     this.edgeCardScale = this.$parent.edgeCardScale;
-    if (this.$parent.$options.name === "Swiper") {
+    if (this.$parent && this.$parent.$options.name === "Swiper") {
+      this.$parent.updateItems();
+    }
+  },
+  destroyed() {
+    if (this.$parent && this.$parent.$options.name === "Swiper") {
       this.$parent.updateItems();
     }
   },
