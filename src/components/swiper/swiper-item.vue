@@ -297,7 +297,6 @@ export default {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  background: #4962;
 }
 .swiper-item.swiper-item-card {
   border: 10px solid rgb(131, 11, 11);
