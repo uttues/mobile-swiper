@@ -1,22 +1,30 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <HelloWorld />
+    <HelloSwiperCard />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from "./components/HelloSwiper.vue";
+import HelloSwiperCard from "./components/HelloSwiperCard.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    HelloWorld,
+    HelloSwiperCard
   }
-}
+};
 </script>
 
 <style>
-html, body {height:100%; overflow:auto; margin: 0;}
+html,
+body {
+  height: 100%;
+  overflow: auto;
+  margin: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
