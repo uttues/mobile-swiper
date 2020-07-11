@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <HelloWorld />
     <HelloSwiperCard />
+    <HelloWorld />
   </div>
 </template>
 

@@ -12,7 +12,7 @@
     <p :style="{'width': size}">{{ name }}</p>
     <span class="play-count">
       <i class="iconfont icon-bofang" />
-      <span>{{ playCount | showCountingUnit }}</span>
+      <span>{{ playCount }}</span>
     </span>
   </div>
 </template>

@@ -31,7 +31,7 @@
 <script>
 import axios from "axios";
 import SongListItem from "./square-card";
-import { Swiper, SwiperItem } from "./swiper-card";
+import { Swiper, SwiperItem } from "./swiper-rotate";
 export default {
   props: {
     list: {

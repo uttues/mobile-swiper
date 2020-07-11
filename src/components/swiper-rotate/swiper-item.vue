@@ -44,6 +44,10 @@ export default {
       onEdgeRight: false,
       isCenter: false,
       isFollowDrag: false,
+
+      currentTranslateX: 0,
+      targetTranslateX: 0,
+
       // ready：updateItems时会对item进行位置初始化，初始化完毕之后再进行显示
       ready: false
     };
@@ -99,6 +103,12 @@ export default {
         transition: transitionValue
       };
       return autoprefixer(style);
+    },
+    /**
+     * 父组件的宽度   offsetWidth = width + 左右padding + 左右boder
+     */
+    parentWidth() {
+      return this.$parent.$el["offsetWidth"];
     }
   },
   created() {
@@ -153,18 +163,14 @@ export default {
      * 更新当前元素的transition，触发生成动态样式
      */
     updateTranslate(index, activeIndex) {
-      // offsetWidth = width + 左右padding + 左右boder
-      const distance = this.$parent.$el["offsetWidth"];
-      return distance * (index - activeIndex);
+      return this.parentWidth * (index - activeIndex);
     },
 
-    updateCardTranslate(index, activeIndex) {
-      console.log(index, activeIndex);
-
-      const parentWidth = this.$parent.$el["offsetWidth"];
+    updateCardTranslate() {
       if (this.onEdgeLeft) return 0;
-      if (this.isCenter) return parentWidth / 4;
-      if (this.onEdgeRight) return parentWidth * (1 - 0.5 * this.edgeCardScale);
+      if (this.isCenter) return this.parentWidth / 4;
+      if (this.onEdgeRight)
+        return this.parentWidth * (1 - 0.5 * this.edgeCardScale);
     },
 
     /**
@@ -215,13 +221,6 @@ export default {
       // 下边这两行主要是用于产生特定的样式，修改translate后触发生成动态样式
       this.onEdgeLeft = (activeIndex + 2) % 3 === index;
       this.onEdgeRight = (activeIndex + 4) % 3 === index;
-      console.log(
-        "edge",
-        index,
-        activeIndex,
-        this.onEdgeLeft,
-        this.onEdgeRight
-      );
       this.isCenter = index === activeIndex;
       this.translate = this.updateCardTranslate(index, activeIndex);
 
@@ -233,11 +232,34 @@ export default {
      */
     toucherTranslateItem(index, activeIndex, dragDistance) {
       // 如果不执行这一个processIndex，则不会实现循环播放
-      index = this.processIndex(index, activeIndex);
+      // index = this.processIndex(index, activeIndex);
+      index = (index + 1) % 3;
 
-      if (this.isTouching) {
-        this.translate = this.beforeTouchX + dragDistance;
+      // this
+      if (dragDistance > 0) {
+        this.onEdgeLeft = (activeIndex + 2 - 1) % 3 === index;
+        this.onEdgeRight = (activeIndex + 4 - 1) % 3 === index;
+        this.isCenter = index === (activeIndex - 1 + 3) % 3;
+        this.targetTranslateX = this.updateCardTranslate();
+      } else {
+        this.onEdgeLeft = (activeIndex + 2 + 1) % 3 === index;
+        this.onEdgeRight = (activeIndex + 4 + 1) % 3 === index;
+        this.isCenter = index === (activeIndex + 1) % 3;
+        this.targetTranslateX = this.updateCardTranslate();
       }
+      const dragRatio = dragDistance / this.parentWidth;
+      if (this.isTouching) {
+        this.translate =
+          (this.targetTranslateX - this.currentTranslateX) * dragRatio +
+          this.currentTranslateX;
+        // this.scale =
+        //   (this.targetTranslateX - this.currentTranslateX) * dragRatio;
+      }
+      // if (index === 1) {
+      //   console.log("this.currentTranslateX", this.currentTranslateX);
+      //   console.log("this.targetTranslateX", this.targetTranslateX);
+      //   console.log("this.dragRatio", this.dragRatio);
+      // }
 
       this.isFollowDrag =
         (dragDistance > 0 && index === activeIndex - 1) ||
@@ -249,6 +271,7 @@ export default {
      */
     toucherStart(index, activeIndex) {
       this.isAnimating = false;
+      this.currentTranslateX = this.updateCardTranslate(index, activeIndex);
 
       if (this.modeType !== "card") {
         // 相邻的 Math.abs(index - activeIndex) <= 1 或者 同为列表边界
