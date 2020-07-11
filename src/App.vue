@@ -23,7 +23,7 @@ html,
 body {
   height: 100%;
   overflow: auto;
-  margin: 0;
+  margin: 0 auto;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

@@ -15,6 +15,7 @@
     @click="throttleHandleCardClick"
   >
     <slot></slot>
+    {{$el? ($el.style.zIndex? $el.style.zIndex : 0):''}}
   </div>
 </template>
 
@@ -47,6 +48,10 @@ export default {
 
       currentTranslateX: 0,
       targetTranslateX: 0,
+      variousScale: 1,
+
+      currentScale: 0,
+      targetScale: 0,
 
       // ready：updateItems时会对item进行位置初始化，初始化完毕之后再进行显示
       ready: false
@@ -97,11 +102,38 @@ export default {
       // 103 是is-center，100是on-edge
       // 会缩小的这一层scale小到一定程度，就会被大的覆盖（102），一旦释放，因为是onEdge，所以还是需要比其他的层级高
 
+      const scaleValue = this.isTouching ? this.variousScale : this.scale;
+
       const style = {
-        transform: `translateX(${this.translate}px) scale(${this.scale})`,
+        transform: `translateX(${this.translate}px) scale(${scaleValue})`,
         transformOrigin: "left center",
         transition: transitionValue
       };
+      // // 表明是完整滑动的情况（呕了） -- > 依然是有bug
+      const parent = this.$parent;
+      console.log(parent.autoAnimDuration);
+      if (this.isAnimating) {
+        // 设置的值奇、偶数用于调试
+        const zIndexValue =
+          this.scale > (1 - this.edgeCardScale) / 2 + this.edgeCardScale
+            ? 108
+            : this.isCenter
+            ? 106
+            : this.onEdgeLeft
+            ? 104
+            : 100;
+        style["zIndex"] = zIndexValue;
+      } else {
+        const zIndexValue =
+          this.variousScale > (1 - this.edgeCardScale) / 2 + this.edgeCardScale
+            ? 107
+            : this.targetScale === 1
+            ? 105
+            : this.targetScale !== this.currentScale
+            ? 103
+            : 101;
+        style["zIndex"] = zIndexValue;
+      }
       return autoprefixer(style);
     },
     /**
@@ -234,32 +266,43 @@ export default {
       // 如果不执行这一个processIndex，则不会实现循环播放
       // index = this.processIndex(index, activeIndex);
       index = (index + 1) % 3;
+      let nextActiveIndex;
 
       // this
       if (dragDistance > 0) {
-        this.onEdgeLeft = (activeIndex + 2 - 1) % 3 === index;
-        this.onEdgeRight = (activeIndex + 4 - 1) % 3 === index;
-        this.isCenter = index === (activeIndex - 1 + 3) % 3;
-        this.targetTranslateX = this.updateCardTranslate();
+        nextActiveIndex = (activeIndex - 1 + 3) % 3;
       } else {
-        this.onEdgeLeft = (activeIndex + 2 + 1) % 3 === index;
-        this.onEdgeRight = (activeIndex + 4 + 1) % 3 === index;
-        this.isCenter = index === (activeIndex + 1) % 3;
-        this.targetTranslateX = this.updateCardTranslate();
+        nextActiveIndex = (activeIndex + 1) % 3;
       }
+
+      this.onEdgeLeft = (nextActiveIndex - 1 + 3) % 3 === index;
+      this.onEdgeRight = (nextActiveIndex + 1) % 3 === index;
+      this.isCenter = index === nextActiveIndex;
+
+      this.targetTranslateX = this.updateCardTranslate();
+      this.targetScale = this.isCenter ? 1 : this.edgeCardScale;
+
       const dragRatio = dragDistance / this.parentWidth;
-      if (this.isTouching) {
+      if (dragDistance > 0) {
         this.translate =
           (this.targetTranslateX - this.currentTranslateX) * dragRatio +
           this.currentTranslateX;
-        // this.scale =
-        //   (this.targetTranslateX - this.currentTranslateX) * dragRatio;
+        this.variousScale =
+          (this.targetScale - this.currentScale) * dragRatio +
+          this.currentScale;
+      } else {
+        this.translate =
+          this.currentTranslateX -
+          (this.targetTranslateX - this.currentTranslateX) * dragRatio;
+        this.variousScale =
+          this.currentScale -
+          (this.targetScale - this.currentScale) * dragRatio;
       }
-      // if (index === 1) {
-      //   console.log("this.currentTranslateX", this.currentTranslateX);
-      //   console.log("this.targetTranslateX", this.targetTranslateX);
-      //   console.log("this.dragRatio", this.dragRatio);
-      // }
+      if (index === 1) {
+        console.log("this.targetScale", this.targetScale);
+        console.log("this.currentScale", this.currentScale);
+        console.log("this.dragRatio", this.dragRatio);
+      }
 
       this.isFollowDrag =
         (dragDistance > 0 && index === activeIndex - 1) ||
@@ -272,6 +315,16 @@ export default {
     toucherStart(index, activeIndex) {
       this.isAnimating = false;
       this.currentTranslateX = this.updateCardTranslate(index, activeIndex);
+
+      // 每一次touch触发，都先看看var是否正确
+      // 当前传入的active是下一个activeIndex（在旋转式里面 activeIndex的值 指的是右边的那张图）
+      this.currentScale =
+        index === (activeIndex - 1 + 3) % 3 ? 1 : this.edgeCardScale;
+      this.variousScale = this.currentScale;
+
+      if (index === 1) {
+        console.log("this.currentScale", this.currentScale);
+      }
 
       if (this.modeType !== "card") {
         // 相邻的 Math.abs(index - activeIndex) <= 1 或者 同为列表边界
@@ -296,6 +349,7 @@ export default {
 
     /**
      * 修改元素动态类（状态），在父组件处理touchEnd时会重新开启计时器（轮播），所以这边无需处理isAnimating
+     * 旋转轮播图新增，这里修改touching状态会影响z-index的判断，放到每次滑动结束
      */
     toucherEnd() {
       this.isTouching = false;
@@ -305,11 +359,11 @@ export default {
      * 在card模式下点击切换
      */
     handleCardClick() {
-      const parent = this.$parent;
-      const index = parent.items.indexOf(this);
-      if (this.modeType === "card" && index !== parent.activeIndex) {
-        parent.playSlide(index - parent.activeIndex, false);
-      }
+      // const parent = this.$parent;
+      // const index = parent.items.indexOf(this);
+      // if (this.modeType === "card" && index !== parent.activeIndex) {
+      //   parent.playSlide(index - parent.activeIndex, false);
+      // }
     }
   }
 };
