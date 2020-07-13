@@ -5,7 +5,7 @@
         height='129px'
         show-arrow-type="never"
         handle-indication-type="hover"
-        :drag-ratio-min-limit="0.33"
+        :drag-ratio-min-limit="0.25"
         :slide-duration="500"
         :interval="3000"
         :loop="true"
@@ -29,7 +29,7 @@
         height='129px'
         show-arrow-type="never"
         handle-indication-type="hover"
-        :drag-ratio-min-limit="0.33"
+        :drag-ratio-min-limit="0.25"
         :slide-duration="500"
         :interval="3000"
         :loop="true"
@@ -69,7 +69,7 @@ export default {
     };
   },
   mounted() {
-    axios.get(`http://localhost:3000/banner?type=0`).then(res => {
+    axios.get(`http://10.255.206.170:3000/banner?type=0`).then(res => {
       console.log(res.data.banners);
       this.banners = res.data.banners;
     });

@@ -50,7 +50,7 @@ export default {
     SongListItem
   },
   mounted() {
-    axios.get(`http://localhost:3000/top/playlist`).then(res => {
+    axios.get(`http://10.255.206.170:3000/top/playlist`).then(res => {
       console.log(res.data.playlists);
       this.swiperSongLists = res.data.playlists.slice(0, 3);
     });
